@@ -1,0 +1,39 @@
+
+function f(x):
+  return x + 2
+
+function outer():
+  function inner():
+    return 'blah'
+  return inner
+
+a = 1 + 2
+b = 3 + 4
+c = 4 * 5
+d = 'abcde'
+e = 'fgh' + d
+
+class Person:
+  constructor(name):
+    self.name = name
+
+  method greet():
+    print('Hello, I am {self.name}!')
+
+class Animal:
+  method breed():
+    return new Animal()
+
+class Cat extends Animal:
+  method meow():
+    print('Meow!')
+
+arr = [1, 2, 3]
+
+dict = {
+  'abc': true,
+  'def': false
+}
+
+bob = new Person('Bob')
+bob.greet()
