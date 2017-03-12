@@ -1,9 +1,11 @@
 import sys
 from lexer import Tokenizer
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
 
 def assert_next_token(tokens, name):
-    token_name, _ = tokens.next()
-    assert token_name == name, 'Expected next token to be %r' % name
+    token = tokens.next()
+    assert token.name == name, 'Expected next token to be %r' % name
 
 def prog(tokens, indent):
     return ('prog', stms(tokens, indent))
@@ -11,6 +13,8 @@ def prog(tokens, indent):
 def stms(tokens, indent):
     stms = []
     while True:
+        if tokens.peek().name == 'newline':
+            tokens.next()
         s = stm(tokens, indent)
         if s:
             stms.append(s)
@@ -24,19 +28,19 @@ def stms(tokens, indent):
 
 def stm(tokens, indent):
     print 'stm'
-    token_name, value = tokens.peek()
-    print "token_name %r" % token_name
-    if token_name == 'indent':
+    token = tokens.peek()
+    print "token_name %r" % token.name
+    if token.name == 'indent':
         tokens.next()
-        if len(value) != indent:
+        if len(token.value) != indent:
             raise Exception('Indentation mismatch')
     return fn_stm(tokens, indent) or line_stm(tokens, indent)
 
 def line_stm(tokens, indent):
     ret_expr = expr(tokens, indent)
     print 'got expr %r' % (ret_expr,)
-    token_name, _ = tokens.next()
-    if token_name != 'newline':
+    token = tokens.next()
+    if token.name != 'newline':
         raise Exception('Expected newline')
     return ret_expr
 
@@ -48,18 +52,19 @@ def expr(tokens, indent):
 
 def fn_stm(tokens, indent):
     print 'fn_expr'
-    token_name, _ = tokens.peek()
-    if token_name != 'function':
+    token = tokens.peek()
+    if token.name != 'function':
         return None
     else:
         tokens.next()
-    token_name, identifier = tokens.next()
+    token = tokens.next()
+    identifier = token.value
     plist = param_list(tokens, indent)
     assert_next_token(tokens, 'colon')
     assert_next_token(tokens, 'newline')
     indent_token = tokens.peek()
-    assert indent_token[0] == 'indent', 'Expected indentation'
-    indent_amount = len(indent_token[1])
+    assert indent_token.name == 'indent', 'Expected indentation'
+    indent_amount = len(indent_token.value)
     print 'indent_amount %r' % indent_amount
     block_stms = stms(tokens, indent_amount)
     return ('function', identifier, plist, block_stms)
@@ -72,16 +77,16 @@ def param_list(tokens, indent):
         token = tokens.next()
         params.append(token)
         token = tokens.next()
-        if token[0] == 'closeparan':
+        if token.name == 'closeparan':
             break
-        assert token[0] == 'comma', 'Expected comma'
+        assert token.name == 'comma', 'Expected comma'
     print 'Params %r' % params
     return params
 
 def return_expr(tokens, indent):
     print 'return_expr'
-    token_name, _ = tokens.peek()
-    if token_name != 'return':
+    token = tokens.peek()
+    if token.name != 'return':
         return None
     else:
         tokens.next()
@@ -91,26 +96,26 @@ def return_expr(tokens, indent):
 
 def assn_expr(tokens, indent):
     print 'assn_expr'
-    token_name, identifier = tokens.peek()
-    if token_name != 'identifier':
+    token = tokens.peek()
+    if token.name != 'identifier':
 		return None
     else:
 		tokens.next()
-    token_name, _ = tokens.next()
-    if token_name != 'assignment':
+    token, _ = tokens.next()
+    if token.name != 'assignment':
         raise Exception('Expected assignment operator')
     # TODO: not just atoms can be on rhs
     rhs = atom_expr(tokens, indent)
-    return ('assignment', identifier, rhs)
+    return ('assignment', token.name, rhs)
 
 def atom_expr(tokens, indent):
-    token_name, value = tokens.next()
-    if token_name != 'number':
+    token = tokens.next()
+    if token.name != 'number':
         raise Exception('Expected number')
-    return ('number', float(value))
+    return ('number', float(token.value))
 
 if __name__ == '__main__':
     filename = sys.argv[1]
     print "Reading", filename
     f = open(filename, 'r')
-    print prog(Tokenizer(f.read()), 0)
+    pp.pprint(prog(Tokenizer(f.read()), 0))

@@ -1,2 +1,5 @@
 function f(x):
 	return 2
+
+function g(y):
+	return 3

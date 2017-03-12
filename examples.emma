@@ -28,6 +28,10 @@ class Cat extends Animal:
   method meow():
     print('Meow!')
 
+  method breed():
+    result = super.breed()
+    result
+
 arr = [1, 2, 3]
 
 dict = {
