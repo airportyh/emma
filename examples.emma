@@ -7,6 +7,9 @@ function outer():
     return 'blah'
   return inner
 
+f = ():
+
+
 a = 1 + 2
 b = 3 + 4
 c = 4 * 5
@@ -16,9 +19,14 @@ e = 'fgh' + d
 class Person:
   constructor(name):
     self.name = name
+    self.friends = []
 
-  method greet():
-    print('Hello, I am {self.name}!')
+  method greet(friend):
+    print('Hello {friend.name}, I am {self.name}!')
+
+  method greet_friends():
+    for friend in self.friends:
+      self.greet(friend)
 
 class Animal:
   method breed():
@@ -30,7 +38,6 @@ class Cat extends Animal:
 
   method breed():
     result = super.breed()
-    result
 
 arr = [1, 2, 3]
 

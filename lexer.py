@@ -36,20 +36,22 @@ patterns = [
 ]
 
 class Token(object):
-    def __init__(self, name, value, line_no):
+    def __init__(self, name, value, line_no, col_no):
         self.name = name
         self.value = value
         self.line_no = line_no
+        self.col_no = col_no
 
     def __repr__(self):
-        if self.name == 'newline':
-            return '\\n'
-        else:
-            return '%s(%s)' % (self.name, self.value)
+        value = self.value
+        if value == '\n':
+            value = '\\n'
+        return '%s(%s) - %d, %d' % (self.name, value, self.line_no, self.col_no)
 
 def tokenize(contents):
     last_token_name = None
     line_no = 1
+    col_no = 1
     while contents:
         m = None
         for token_name, pattern in patterns:
@@ -58,11 +60,16 @@ def tokenize(contents):
                 # print "matched %s %s" % (pattern.pattern, m.group(0))
                 if token_name == 'whitespace':
                     if last_token_name == 'newline':
-                        yield Token(token_name, m.group(0), line_no)
+                        yield Token(token_name, m.group(0), line_no, col_no)
+                    col_no += m.end()
                 else:
-                    yield Token(token_name, m.group(0), line_no)
-                if token_name == 'newline':
-                    line_no += 1
+                    yield Token(token_name, m.group(0), line_no, col_no)
+                    if token_name == 'newline':
+                        line_no += 1
+                        col_no = 1
+                    else:
+                        col_no += m.end()
+
                 contents = contents[m.end():]
                 # print "Rest[%s]" % contents
                 last_token_name = token_name

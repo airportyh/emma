@@ -1,5 +1,8 @@
 # TODO
 
+* idea: preprocess the colons and indentation and rewrite as brackets first
+* good syntax errors
 * function definition syntax
 * function call syntax
 * line numbers in error messages
+* make sure indentation works

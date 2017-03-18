@@ -27,13 +27,21 @@ def stms(tokens, indent):
     return stms
 
 def stm(tokens, indent):
-    print 'stm'
+    print 'stm', indent
     token = tokens.peek()
     print "token_name %r" % token.name
     if token.name == 'indent':
+        print 'len(token.value)', len(token.value)
         tokens.next()
-        if len(token.value) != indent:
+        if len(token.value) < indent:
+            return None
+        elif len(token.value) != indent:
             raise Exception('Indentation mismatch')
+    else:
+        if indent > 0:
+            # in a block but no indent means stopping
+            # indent block
+            return None
     return fn_stm(tokens, indent) or line_stm(tokens, indent)
 
 def line_stm(tokens, indent):
@@ -101,9 +109,9 @@ def assn_expr(tokens, indent):
 		return None
     else:
 		tokens.next()
-    token, _ = tokens.next()
+    token = tokens.next()
     if token.name != 'assignment':
-        raise Exception('Expected assignment operator')
+        raise Exception('Expected assignment operator - Line %d' % token.line_no)
     # TODO: not just atoms can be on rhs
     rhs = atom_expr(tokens, indent)
     return ('assignment', token.name, rhs)
