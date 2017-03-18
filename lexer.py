@@ -49,6 +49,7 @@ class Token(object):
         return '%s(%s) - %d, %d' % (self.name, value, self.line_no, self.col_no)
 
 def tokenize(contents):
+    lines = contents.split('\n')
     last_token_name = None
     line_no = 1
     col_no = 1
@@ -78,7 +79,15 @@ def tokenize(contents):
                 # print "didnt match %s" % pattern.pattern
                 pass
         if m is None:
-			raise Exception('Houston, we have a problem.')
+            print
+            line = lines[line_no - 1]
+            print line
+            line_indent = get_indent(line)
+            print line_indent + ' ' * (col_no - len(line_indent) - 1) + '^'
+            raise Exception('Houston, we have  a problem on line %d column %d.' % (line_no, col_no))
+
+def get_indent(line):
+    return re.compile(r'\t*').match(line).group(0)
 
 class Tokenizer(object):
 	def __init__(self, contents):
