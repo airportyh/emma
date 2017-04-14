@@ -86,8 +86,9 @@ def tokenize(contents):
             print line_indent + ' ' * (col_no - len(line_indent) - 1) + '^'
             raise Exception('Houston, we have  a problem on line %d column %d.' % (line_no, col_no))
 
+INDENT_RE = re.compile(r'\t*')
 def get_indent(line):
-    return re.compile(r'\t*').match(line).group(0)
+    return INDENT_RE.match(line).group(0)
 
 class Tokenizer(object):
 	def __init__(self, contents):
